@@ -1,0 +1,6 @@
+ase==3.22.1
+h5py
+matplotlib
+numpy
+scikit-learn
+scipy
