@@ -6,7 +6,7 @@ setup(
     description="Machine Learning Hamiltonians Utility Methods",
     author="Valdas Vitartas",
     author_email="vitartc@gmail.com",
-    url="https://github.com/vitartc/HamUtils",
+    url="https://github.com/vitartc/hamutils",
     packages=["hamutils"],
     license="MIT"
 )
