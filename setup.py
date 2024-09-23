@@ -8,5 +8,13 @@ setup(
     author_email="vitartc@gmail.com",
     url="https://github.com/vitartc/hamutils",
     packages=["hamutils"],
+    install_requires=[
+        "h5py",
+        "numpy",
+        "scipy",
+        "matplotlib",
+        "scikit-learn",
+        "ase==3.22.1",
+    ],
     license="MIT"
 )
