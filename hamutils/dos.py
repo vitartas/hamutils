@@ -48,7 +48,7 @@ def write_dos(cell, energy_range, n_points, fermi_level, H, S, translations, kpo
     """
     
     if not os.path.exists(direc):
-        os.mkdir(direc)
+        os.makedirs(direc, exist_ok=True)
 
     dos_energies, dos_values = compute_dos(
         cell, energy_range, n_points, fermi_level, H, S, translations, kpoint_density, broadening
