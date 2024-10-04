@@ -63,7 +63,7 @@ def write_band_structure(H, S, translations_H, translations_S, band_input, direc
     direc: where to write the data
     """
     if not os.path.exists(direc):
-        os.mkdir(direc)
+        os.makedirs(direc, exist_ok=True)
 
     for i, line in enumerate(band_input):
         line = line.split()
