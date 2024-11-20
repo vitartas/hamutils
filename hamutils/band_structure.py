@@ -46,10 +46,10 @@ def compute_band(H, S, translations_H, translations_S, karray, diag_mode):
         rec_H = get_rec_M(H, translations_H, kpoint)
         rec_S = get_rec_M(S, translations_S, kpoint)
 
-        if diag_mode == "general":
+        if diag_mode.lower() == "general":
             eigenvals = scipy.linalg.eigvals(rec_H, rec_S)
             band_data[i, :] = np.sort(np.real(eigenvals))
-        elif diag_mode == "hermitian":
+        elif diag_mode.lower() == "hermitian":
             eigenvals = scipy.linalg.eigvalsh(rec_H, rec_S)
             band_data[i, :] = eigenvals
         else:
@@ -84,57 +84,69 @@ def write_band_structure(H, S, translations_H, translations_S, band_input, direc
 
     return None
 
-def read_bands(path, fermi_level, mode):
+def read_bands(path, fermi_level, mode, convert_to_eV=True):
     """
     Get eigenvalues of bands along high-symmetry paths.
     All bands are returned which are ordered in the same way as lattice.special_path
     (unless surface bands were computed, in which case not all possible bands will be in the files)
-    """
-    if mode == "custom":
-        return read_bands_custom(path, fermi_level)
-    elif mode == "ACEh":
-        return read_bands_aceh(path, fermi_level)
-    elif mode == "FHI-aims":
-        return read_bands_fhiaims(path)
 
-def read_bands_custom(path, fermi_level):
+    convert_to_eV: if True, the bands are converted from Ha to eV.
+    However, note that the units of the fermi level are not converted.
+    """
+    if mode.lower() == "custom":
+        return read_bands_custom(path, fermi_level, convert_to_eV)
+    elif mode.lower() == "aceh":
+        return read_bands_aceh(path, fermi_level, convert_to_eV)
+    elif mode.lower() == "fhi-aims":
+        return read_bands_fhiaims(path)
+    else:
+        raise ValueError(f"Unsupported mode: {mode}.")
+
+def read_bands_custom(path, fermi_level, convert_to_eV):
     """
     Bands from custom real-space -> band structure implementation.
     """
     n_irrel_columns = 3
-    band_paths = sorted(glob.glob(os.path.join(path, "cband*")))
+    band_paths = sorted(glob.glob(os.path.join(path, "cband*")), key=get_band_idx_func(mode="custom"))
     n_bands = np.loadtxt(band_paths[0]).shape[1] - n_irrel_columns
+
+    if convert_to_eV:
+        conversion = HARTREE_TO_EV
+    else:
+        conversion = 1.0
 
     data_tot = []
     for i, band_path in enumerate(band_paths):
         data = np.loadtxt(band_path)
         rel_data = np.zeros((data.shape[0], n_bands))
         for i in range(n_bands):
-            # Assuming we can use the same Ha->eV conversion as for FHI-aims
-            # (as we assume the data was generated using FHI-aims)
-            rel_data[:,i] = data[:,n_irrel_columns + i] * HARTREE_TO_EV - fermi_level
+            rel_data[:,i] = data[:,n_irrel_columns + i] * conversion - fermi_level
         data_tot.append(rel_data)
 
     return data_tot
 
-def read_bands_aceh(path, fermi_level):
+def read_bands_aceh(path, fermi_level, convert_to_eV):
     """
     The ACEh-computed bands are in Hartree and are not shifted with respect to the Fermi level.
     This function reads the files and scales+shifts the band structure accordingly.
 
     fermi_level: Chemical potential from FHI-aims calculation in eV
     """
-    # Need different sorting for cases like [band_1, band_10, band_2]
-    band_paths = sorted(glob.glob(os.path.join(path, "band*")), key=get_band_idx)
+    band_paths = sorted(glob.glob(os.path.join(path, "band*")), key=get_band_idx_func(mode="aceh"))
     n_irrel_columns = 3
     n_bands = np.loadtxt(band_paths[0]).shape[1] - n_irrel_columns
+
+    if convert_to_eV:
+        conversion = HARTREE_TO_EV
+    else:
+        conversion = 1.0
 
     data_tot = []
     for i, band_path in enumerate(band_paths):
         data = np.loadtxt(band_path)
         rel_data = np.zeros((data.shape[0], n_bands))
         for i in range(n_bands):
-            rel_data[:,i] = data[:,n_irrel_columns + i] * HARTREE_TO_EV - fermi_level
+            rel_data[:,i] = data[:,n_irrel_columns + i] * conversion - fermi_level
         data_tot.append(rel_data)
 
     return data_tot
@@ -144,7 +156,7 @@ def read_bands_fhiaims(path):
     Bands from FHI-aims output bands method. Note that the bands are already in eV and shifted wrt eF
     """
     n_irrel_columns = 4
-    band_paths = sorted(glob.glob(os.path.join(path, "band1*")))
+    band_paths = sorted(glob.glob(os.path.join(path, "band*")), key=get_band_idx_func(mode="fhi-aims"))
     n_bands = int((np.loadtxt(band_paths[0]).shape[1] - n_irrel_columns) / 2)
 
     data_tot = []
@@ -157,8 +169,21 @@ def read_bands_fhiaims(path):
 
     return data_tot
 
-def get_band_idx(filename):
-    return int(filename.split("_")[-1].split(".")[0])
+def get_band_idx_func(mode):
+    """
+    Return a function which returns an index of a band from its filename.
+    """
+    def get_band_idx(pth):
+        if mode.lower() == "custom":
+            return int(pth.split("/")[-1].split(".")[0][5:])
+        elif mode.lower() == "aceh":
+            return int(pth.split("_")[-1].split(".")[0])
+        elif mode.lower() == "fhi-aims":
+            return int(pth.split("/")[-1].split(".")[0][4:])
+        else:
+            raise ValueError(f"Unsupported mode: {mode}.")
+    
+    return get_band_idx
 
 def get_band_xticks(cell):
     lattice = cell.get_bravais_lattice()
