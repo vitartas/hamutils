@@ -23,7 +23,7 @@ from hamutils.thermo import(
 )
 
 from hamutils.dos import compute_dos, write_dos
-from hamutils.fourier import get_rec_M
+from hamutils.fourier import get_rec_M, get_rec_M_batch
 from hamutils.kgrid import get_nkstr_from_density, get_kgrid
 from hamutils.mask import get_basis_core_mask, get_basis_interaction_mask2d, convert_name_to_indices
 from hamutils.misc import get_idx_of_image
@@ -37,6 +37,7 @@ __all__ = [
     "compute_dos",
     "write_dos",
     "get_rec_M",
+    "get_rec_M_batch",
     "get_nkstr_from_density",
     "get_kgrid",
     "get_chemical_potential",
