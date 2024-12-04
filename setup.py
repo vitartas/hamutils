@@ -12,6 +12,7 @@ setup(
         "h5py",
         "numpy",
         "scipy",
+        "numba",
         "matplotlib",
         "scikit-learn",
         "ase==3.22.1",

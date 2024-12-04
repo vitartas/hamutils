@@ -1,8 +1,9 @@
 from hamutils.plot import (
-    diverging_color, qualitative_color,
+    diverging_colors, qualitative_colors,
     find_island_corners,
     plot_frame_around,
-    plot_frame_around_subblocks
+    plot_frame_around_subblocks,
+    plot_band_structure
 )
 
 from hamutils.band_structure import (
@@ -21,7 +22,7 @@ from hamutils.thermo import(
     gaussian_smearing,
 )
 
-from hamutils.dos import write_dos
+from hamutils.dos import compute_dos, write_dos
 from hamutils.fourier import get_rec_M
 from hamutils.kgrid import get_nkstr_from_density, get_kgrid
 from hamutils.mask import get_basis_core_mask, get_basis_interaction_mask2d, convert_name_to_indices
@@ -33,6 +34,7 @@ __all__ = [
     "write_band_structure",
     "read_bands",
     "get_band_xticks",
+    "compute_dos",
     "write_dos",
     "get_rec_M",
     "get_nkstr_from_density",
@@ -50,6 +52,7 @@ __all__ = [
     "find_island_corners",
     "plot_frame_around",
     "plot_frame_around_subblocks",
+    "plot_band_structure",
     "diverging_color",
     "qualitative_color",
     "HARTREE_TO_EV"
