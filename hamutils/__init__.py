@@ -22,7 +22,7 @@ from hamutils.thermo import(
     gaussian_smearing,
 )
 
-from hamutils.dos import compute_dos, write_dos
+from hamutils.dos import compute_dos, compute_dos_from_eigenvals, write_dos
 from hamutils.fourier import get_rec_M, get_rec_M_batch
 from hamutils.kgrid import get_nkstr_from_density, get_kgrid
 from hamutils.mask import get_basis_core_mask, get_basis_interaction_mask2d, convert_name_to_indices
@@ -35,6 +35,7 @@ __all__ = [
     "read_bands",
     "get_band_xticks",
     "compute_dos",
+    "compute_dos_from_eigenvals",
     "write_dos",
     "get_rec_M",
     "get_rec_M_batch",

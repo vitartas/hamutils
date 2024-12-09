@@ -1,18 +1,16 @@
 from hamutils.kgrid import get_kgrid
 from hamutils.fourier import get_rec_M_batch
 from hamutils.const import HARTREE_TO_EV
-from time import time
-from multiprocessing import Pool
 
 import os
 import numpy as np
 import scipy.linalg
 
-def gaussian_broadening(E, eigenv, sigma):
-    return np.exp(-((E - eigenv) / sigma)**2) / (np.sqrt(np.pi) * sigma)
+def gaussian_broadening(dE, sigma):
+    return np.exp(-(dE / sigma)**2) / (np.sqrt(np.pi) * sigma)
 
 def compute_dos(cell, energy_range, n_points, fermi_level, H, S, translations, kpoint_density,
-                broadening=0.1, convert_to_eV=True):
+                broadening=0.1, convert_to_eV=True, n_batches=10):
     """
     Compute DOS using real-space matrices
     """
@@ -22,6 +20,7 @@ def compute_dos(cell, energy_range, n_points, fermi_level, H, S, translations, k
         conversion = 1.0
 
     kgrid = get_kgrid(cell=cell, k_grid_density=kpoint_density)
+    Nk = kgrid.shape[0]
 
     rec_H_batch = get_rec_M_batch(H, translations, kgrid)
     rec_S_batch = get_rec_M_batch(S, translations, kgrid)
@@ -39,11 +38,38 @@ def compute_dos(cell, energy_range, n_points, fermi_level, H, S, translations, k
     dos_energies = np.linspace(energy_range[0], energy_range[-1], n_points)
     dos_values = np.zeros_like(dos_energies)
 
-    for i, E in enumerate(dos_energies):
-        dos_values[i] = np.sum(gaussian_broadening(E, all_eigenvals_eV_fermi, broadening))
+    for i in range(n_points):
+        dE = dos_energies[i] - all_eigenvals_eV_fermi
+        dos_values[i] = np.sum(gaussian_broadening(dE, broadening))
 
     # BvK
-    dos_values /= len(kgrid)
+    dos_values /= Nk
+    # 2 els per orbital
+    dos_values *= 2
+
+    return dos_energies, dos_values
+
+def compute_dos_from_eigenvals(all_eigenvals, energy_range, n_points, fermi_level, Nk,
+                               broadening=0.1, convert_to_eV=True):
+    """
+    Method to compute DOS from supplied eigenvalues, does not require to perform diagonalisation.
+    """
+    if convert_to_eV:
+        conversion = HARTREE_TO_EV
+    else:
+        conversion = 1.0
+
+    all_eigenvals_eV_fermi = all_eigenvals * conversion - fermi_level
+    
+    dos_energies = np.linspace(energy_range[0], energy_range[-1], n_points)
+    dos_values = np.zeros_like(dos_energies)
+
+    for i in range(n_points):
+        dE = dos_energies[i] - all_eigenvals_eV_fermi
+        dos_values[i] = np.sum(gaussian_broadening(dE, broadening))
+
+    # BvK
+    dos_values /= Nk
     # 2 els per orbital
     dos_values *= 2
 
