@@ -14,6 +14,7 @@ from hamutils.band_structure import (
 )
 
 from hamutils.thermo import(
+    get_number_density,
     get_chemical_potential,
     get_grand_potential_density,
     get_entropy_density,
@@ -41,6 +42,7 @@ __all__ = [
     "get_rec_M_batch",
     "get_nkstr_from_density",
     "get_kgrid",
+    "get_number_density",
     "get_chemical_potential",
     "get_grand_potential_density",
     "get_entropy_density",

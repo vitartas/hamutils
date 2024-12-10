@@ -17,7 +17,6 @@ def get_number_density(E, DOS, mu, T, smearing):
     """
     Get number density for densities of states normalised per unit volume.
     """
-
     num_dens = 0
     for i in range(1, len(DOS)):
         integrand_i_minus_1 = DOS[i-1] * smearing(E[i-1], mu, T)
