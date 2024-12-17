@@ -9,6 +9,8 @@ from ase.cell import Cell
 
 diverging_colors = np.tile(["#443F90", "#685BA7", "#A599CA", "#F5DDEB", "#F592A5", "#EA6E8A", "#D21C5E"], 10)
 qualitative_colors = np.tile(["#FF1F5B", "#00CD6C", "#009ADE", "#AF58BA", "#FFC61E", "#F28522"], 10)
+matplotlib_colors = np.tile([u'#1f77b4', u'#ff7f0e', u'#2ca02c', u'#d62728', u'#9467bd',
+                             u'#8c564b', u'#e377c2', u'#7f7f7f', u'#bcbd22', u'#17becf'], 10)
 
 mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=qualitative_colors)
 mpl.rcParams['figure.dpi'] = 400

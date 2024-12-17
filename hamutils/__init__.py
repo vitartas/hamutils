@@ -1,5 +1,7 @@
 from hamutils.plot import (
-    diverging_colors, qualitative_colors,
+    diverging_colors,
+    qualitative_colors,
+    matplotlib_colors,
     find_island_corners,
     plot_frame_around,
     plot_frame_around_subblocks,
