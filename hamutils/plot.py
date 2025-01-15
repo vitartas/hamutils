@@ -4,6 +4,7 @@ from hamutils.band_structure import get_band_xticks
 import numpy as np
 import matplotlib as mpl
 from matplotlib.axes import Axes
+from typing import Optional
 
 from ase.cell import Cell
 
@@ -73,7 +74,8 @@ def plot_frame_around_subblocks(ax, basis):
 def plot_band_structure(
         ax: Axes,
         band_plot_dict: dict[str, dict],
-        cell: Cell
+        cell: Optional[Cell] = None,
+        add_ticks: bool = True
     ) -> None:
     """
     Plot band structure in axis `ax`.
@@ -81,7 +83,8 @@ def plot_band_structure(
     ## Arguments ##
         `ax`: Matplotlib axis object.
         `band_plot_dict`: Dictionary of dictionaries containing information about the band.
-        `cell`: ASE cell object of the plotted configuration.
+        `cell`: ASE cell object of the plotted configuration, only required if `add_ticks` is True.
+        `add_ticks`: if True, all the high symmetry points of the brillouin lattice will be used as ticks.
     
     ## Example ##
     ```
@@ -99,9 +102,20 @@ def plot_band_structure(
             Nbands = bandpath_data.shape[1]
 
             for i_band in range(Nbands):
+                first_band = (i_bandpath == 0) and (i_band == 0)
+
                 ax.plot(range(x_counter, x_counter + Nk_bandpath), bandpath_data[:, i_band],
                         **band_plot_dict[band_key]["style"],
-                        label=f"{band_key}" if (i_bandpath == 0) and (i_band == 0) else None)
+                        label=f"{band_key}" if first_band else None)
+
+                if "std" in band_plot_dict[band_key]:
+                    std_dict = band_plot_dict[band_key]["std"]
+                    bandpath_std = std_dict["data"][i_bandpath]
+                    ax.fill_between(range(x_counter, x_counter + Nk_bandpath),
+                                    bandpath_data[:, i_band] - 2 * bandpath_std[:, i_band],
+                                    bandpath_data[:, i_band] + 2 * bandpath_std[:, i_band],
+                                    **std_dict["style"],
+                                    label=f"{band_key} Uncertainty" if first_band else None)
 
             # minus one because the adjacent special k-point path ends overlap
             x_counter += Nk_bandpath - 1
@@ -111,8 +125,10 @@ def plot_band_structure(
         ax.axvline(x, color="black")
 
     ax.set_xlim(x_counter_list[0], x_counter_list[-1])
-    ax.set_xticks(np.array(x_counter_list), get_band_xticks(cell))
+
+    if add_ticks:
+        ax.set_xticks(np.array(x_counter_list), get_band_xticks(cell))
 
     ax.set_ylabel(r"$E - \epsilon_{F}$ / eV")
 
-    return None
+    return x_counter_list
