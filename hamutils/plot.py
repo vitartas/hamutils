@@ -111,11 +111,12 @@ def plot_band_structure(
                 if "std" in band_plot_dict[band_key]:
                     std_dict = band_plot_dict[band_key]["std"]
                     bandpath_std = std_dict["data"][i_bandpath]
+                    label = band_plot_dict[band_key]["std"].get("label", f"{band_key} Uncertainty")
                     ax.fill_between(range(x_counter, x_counter + Nk_bandpath),
                                     bandpath_data[:, i_band] - 2 * bandpath_std[:, i_band],
                                     bandpath_data[:, i_band] + 2 * bandpath_std[:, i_band],
                                     **std_dict["style"],
-                                    label=f"{band_key} Uncertainty" if first_band else None)
+                                    label=label if first_band else None)
 
             # minus one because the adjacent special k-point path ends overlap
             x_counter += Nk_bandpath - 1
