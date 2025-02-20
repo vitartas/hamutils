@@ -7,7 +7,7 @@ import numpy as np
 import scipy.linalg
 
 def gaussian_broadening(dE, sigma):
-    return np.exp(-(dE / sigma)**2) / (np.sqrt(np.pi) * sigma)
+    return np.exp(-(dE ** 2) / (2 * sigma ** 2)) / (np.sqrt(2 * np.pi) * sigma)
 
 def compute_dos(cell, energy_range, n_points, fermi_level, H, translations_H, S, translations_S,
                 kpoint_density=None, nkstr=None, broadening=0.1, convert_to_eV=True, n_batches=10):
