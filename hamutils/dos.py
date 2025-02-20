@@ -9,8 +9,8 @@ import scipy.linalg
 def gaussian_broadening(dE, sigma):
     return np.exp(-(dE / sigma)**2) / (np.sqrt(np.pi) * sigma)
 
-def compute_dos(cell, energy_range, n_points, fermi_level, H, S, translations, kpoint_density,
-                broadening=0.1, convert_to_eV=True, n_batches=10):
+def compute_dos(cell, energy_range, n_points, fermi_level, H, translations_H, S, translations_S,
+                kpoint_density=None, nkstr=None, broadening=0.1, convert_to_eV=True, n_batches=10):
     """
     Compute DOS using real-space matrices
     """
@@ -19,11 +19,11 @@ def compute_dos(cell, energy_range, n_points, fermi_level, H, S, translations, k
     else:
         conversion = 1.0
 
-    kgrid = get_kgrid(cell=cell, k_grid_density=kpoint_density)
+    kgrid = get_kgrid(cell=cell, k_grid_density=kpoint_density, nkstr=nkstr)
     Nk = kgrid.shape[0]
 
-    rec_H_batch = get_rec_M_batch(H, translations, kgrid)
-    rec_S_batch = get_rec_M_batch(S, translations, kgrid)
+    rec_H_batch = get_rec_M_batch(H, translations_H, kgrid)
+    rec_S_batch = get_rec_M_batch(S, translations_S, kgrid)
 
     all_eigenvals_map = map(scipy.linalg.eigvalsh, rec_H_batch, rec_S_batch)
     all_eigenvals = np.concatenate(list(all_eigenvals_map))
@@ -75,8 +75,8 @@ def compute_dos_from_eigenvals(all_eigenvals, energy_range, n_points, fermi_leve
 
     return dos_energies, dos_values
 
-def write_dos(cell, energy_range, n_points, fermi_level, H, S, translations, kpoint_density,
-              direc, broadening=0.1, convert_to_eV=True):
+def write_dos(cell, energy_range, n_points, fermi_level, H, translations_H, S, translations_S,
+              direc, kpoint_density=None, nkstr=None, broadening=0.1, convert_to_eV=True):
     """
     Compute and write DOS to a file "cdos.dat" in the directory direc.
     Two columns: 1st energy, 2nd DOS value 
@@ -86,8 +86,8 @@ def write_dos(cell, energy_range, n_points, fermi_level, H, S, translations, kpo
         os.makedirs(direc, exist_ok=True)
 
     dos_energies, dos_values = compute_dos(
-        cell, energy_range, n_points, fermi_level, H, S, translations, kpoint_density, 
-        broadening, convert_to_eV
+        cell, energy_range, n_points, fermi_level, H, translations_H, S, translations_S,
+        kpoint_density, nkstr, broadening, convert_to_eV
     )
 
     np.savetxt(os.path.join(direc, "cdos.dat"), np.stack([dos_energies, dos_values]).T)
