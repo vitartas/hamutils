@@ -8,24 +8,106 @@ from typing import Optional
 
 from ase.cell import Cell
 
-diverging_colors = np.tile(["#443F90", "#685BA7", "#A599CA", "#F5DDEB", "#F592A5", "#EA6E8A", "#D21C5E"], 10)
-qualitative_colors = np.tile(["#FF1F5B", "#00CD6C", "#009ADE", "#AF58BA", "#FFC61E", "#F28522"], 10)
-matplotlib_colors = np.tile([u'#1f77b4', u'#ff7f0e', u'#2ca02c', u'#d62728', u'#9467bd',
-                             u'#8c564b', u'#e377c2', u'#7f7f7f', u'#bcbd22', u'#17becf'], 10)
+diverging_colors = np.tile([
+    "#443F90",
+    "#685BA7",
+    "#A599CA",
+    "#F5DDEB",
+    "#F592A5",
+    "#EA6E8A",
+    "#D21C5E",
+], 10)
+qualitative_colors = np.tile([
+    "#8da0cb",
+    "#fc8d62",
+    "#66c2a5",
+    "#e78ac3",
+    "#a6d854",
+    "#ffd92f",
+], 10)
+matplotlib_colors = np.tile([
+    u'#1f77b4',
+    u'#ff7f0e',
+    u'#2ca02c',
+    u'#d62728',
+    u'#9467bd',
+    u'#8c564b',
+    u'#e377c2',
+    u'#7f7f7f',
+    u'#bcbd22',
+    u'#17becf',
+], 10)
+
+MM = 1/25.4
+FULL_PAGE = 210 * MM
+HALF_PAGE = FULL_PAGE / 2
+DEFAULT_HEIGHT = 80 * MM
 
 mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=qualitative_colors)
-mpl.rcParams['figure.dpi'] = 400
-mpl.rcParams['axes.titlesize'] = 15
-mpl.rcParams['axes.labelsize'] = 12
+mpl.rcParams['figure.dpi'] = 300
+mpl.rcParams['figure.figsize'] = (HALF_PAGE, DEFAULT_HEIGHT)
+
+mpl.rcParams['text.usetex'] = True
+mpl.rcParams['text.latex.preamble'] = r"""
+\usepackage{bm}
+"""
+
+mpl.rcParams['font.family'] = "serif"
+mpl.rcParams['font.serif'] = "Computer Modern Roman"
+mpl.rcParams['mathtext.fontset'] = "cm"
+
+mpl.rcParams['axes.titlesize'] = 10
+mpl.rcParams['axes.labelsize'] = 8
+mpl.rcParams['axes.linewidth'] = 1.2
+
 mpl.rcParams['lines.linewidth'] = 1
 mpl.rcParams['lines.markersize'] = 5
-mpl.rcParams['xtick.labelsize'] = 12
-mpl.rcParams['ytick.labelsize'] = 12
+
+mpl.rcParams['axes.grid'] = True
+mpl.rcParams['grid.linewidth'] = 0.1
+mpl.rcParams['grid.linestyle'] = "--"
+
+mpl.rcParams['xtick.labelsize'] = 6
 mpl.rcParams['xtick.direction'] = 'in'
-mpl.rcParams['ytick.direction'] = 'in'
 mpl.rcParams['xtick.top'] = True
+mpl.rcParams['xtick.major.pad'] = 2.0
+mpl.rcParams['xtick.major.size'] = 2.0
+mpl.rcParams['xtick.minor.pad'] = 1.95
+mpl.rcParams['xtick.minor.size'] = 2.0
+
+mpl.rcParams['ytick.labelsize'] = 6
+mpl.rcParams['ytick.direction'] = 'in'
 mpl.rcParams['ytick.right'] = True
-mpl.rcParams['axes.linewidth'] = 1.2
+mpl.rcParams['ytick.major.pad'] = 2.0
+mpl.rcParams['ytick.major.size'] = 2.0
+mpl.rcParams['ytick.minor.pad'] = 1.95
+mpl.rcParams['ytick.minor.size'] = 2.0
+
+mpl.rcParams['legend.title_fontsize'] = 8
+mpl.rcParams['legend.fontsize'] = 8
+mpl.rcParams['legend.framealpha'] = 1.0
+mpl.rcParams['legend.fancybox'] = True
+mpl.rcParams['legend.markerscale'] = 2.0
+
+def add_subplot_letter(i_ax, ax, upper=False):
+    subplot_letter_xshift = -0.06
+    subplot_letter_yshift = 1.10
+    subplot_letter_style = {
+        "fontsize": 14,
+        "va": "top",
+        "ha": "right",
+    }
+    ascii_index = 65 if upper else 97
+    letter = rf"\textbf{{{chr(i_ax + ascii_index)}}})"
+
+    ax.text(
+        subplot_letter_xshift,
+        subplot_letter_yshift,
+        letter,
+        transform=ax.transAxes,
+        **subplot_letter_style
+    )
+    return None
 
 def find_island_corners(array):
     corners_list = []
